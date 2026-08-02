@@ -8,7 +8,7 @@
     "configurePresets": [
       {
         "name": "project",
-        "displayName": "Configure node_xg26",
+        "displayName": "Configure XG26_MAX30102_I2C",
         "generator": "Ninja Multi-Config",
         "binaryDir": "${sourceDir}/build",
         "toolchainFile": "${sourceDir}/toolchain.cmake",
@@ -20,10 +20,10 @@
     "buildPresets": [
       {
         "name": "default_config",
-        "displayName": "Build node_xg26",
+        "displayName": "Build XG26_MAX30102_I2C",
         "configurePreset": "project",
         "configuration": "base",
-        "targets": ["node_xg26"]
+        "targets": ["XG26_MAX30102_I2C"]
       }
     ],
     "workflowPresets": [

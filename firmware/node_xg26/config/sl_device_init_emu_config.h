@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Memory Heap and stack size configuration file.
+ * @brief DEVICE_INIT_EMU Config
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -28,25 +28,27 @@
  *
  ******************************************************************************/
 
+#ifndef SL_DEVICE_INIT_EMU_CONFIG_H
+#define SL_DEVICE_INIT_EMU_CONFIG_H
+
+#include "em_emu.h"
+
 // <<< Use Configuration Wizard in Context Menu >>>
 
-#ifndef SL_MEMORY_MANAGER_REGION_CONFIG_H
-#define SL_MEMORY_MANAGER_REGION_CONFIG_H
+// <q> Allow debugger to remain connected in EM2
+// <i> Force PD0B to stay on on EM2 entry. This allows the debugger to remain connected in EM2 and EM3.
+// <i> Enabling debug connectivity results in an increased power consumption in EM2/EM3.
+// <i> Default: 1
+#define SL_DEVICE_INIT_EMU_EM2_DEBUG_ENABLE   1
 
-#include "sl_component_catalog.h"
-
-// <h> Memory configuration
-
-// <o SL_STACK_SIZE> Stack size for the application.
-// <i> Default: 4096
-// <i> The stack size configured here will be used by the stack that the
-// <i> application uses when coming out of a reset.
-#ifndef SL_STACK_SIZE
-#define SL_STACK_SIZE 4096
-#endif
-// </h>
+// <o SL_DEVICE_INIT_EMU_EM4_PIN_RETENTION_MODE> EM4 pin retention mode
+// <emuPinRetentionDisable=> No Retention: Pads enter reset state when entering EM4.
+// <emuPinRetentionEm4Exit=> Retention through EM4: Pads enter reset state when exiting EM4.
+// <emuPinRetentionLatch=> Retention through EM4 and wakeup.
+// <i> Default: emuPinRetentionDisable
+#define SL_DEVICE_INIT_EMU_EM4_PIN_RETENTION_MODE  emuPinRetentionDisable
 
 // <<< end of configuration section >>>
 
-#endif /* SL_MEMORY_MANAGER_REGION_CONFIG_H */
+#endif // SL_DEVICE_INIT_EMU_CONFIG_H
 

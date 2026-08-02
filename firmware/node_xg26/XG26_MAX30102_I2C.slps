@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ASCII"?>
 <model:MDescriptors xmlns:model="http://www.silabs.com/ss/Studio.ecore">
-  <descriptors name="node_xg26">
-    <properties key="projectCommon.sdkId" value="com.silabs.sdk.stack.sisdk:2026.6.0._-1778100162374425996"/>
-    <properties key="universalConfig.relativeWorkspacePath" value="..\node_xg26.slcw"/>
+  <descriptors name="XG26_MAX30102_I2C">
+    <properties key="projectCommon.sdkId" value="com.silabs.sdk.stack.sisdk:2026.6.0._-19169679522374425996"/>
+    <properties key="universalConfig.relativeWorkspacePath" value="..\XG26_MAX30102_I2C.slcw"/>
     <properties key="universalConfig.generationDirectory" value=""/>
     <properties key="universalConfig.toolchainCompatibility" value="iar llvm gcc"/>
     <properties key="projectCommon.overwriteCopiedSources" value="false"/>
@@ -12,6 +12,6 @@
     <properties key="projectCommon.toolchainId" value="com.silabs.ss.framework.project.core.noToolChain:0.0.0"/>
     <properties key="universalConfig.projectTypeIds" value="visual-studio-code"/>
     <properties key="projectCommon.importModeId" value="COPY"/>
-    <properties key="universalConfig.compSelProjInstanceId" value="1785573659473"/>
+    <properties key="universalConfig.compSelProjInstanceId" value="1785086049020"/>
   </descriptors>
 </model:MDescriptors>
