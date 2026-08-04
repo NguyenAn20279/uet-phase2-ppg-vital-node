@@ -8,7 +8,7 @@
     "configurePresets": [
       {
         "name": "project",
-        "displayName": "Configure gateway_bgm220p",
+        "displayName": "Configure BGM220P_OLED_I2C",
         "generator": "Ninja Multi-Config",
         "binaryDir": "${sourceDir}/build",
         "toolchainFile": "${sourceDir}/toolchain.cmake",
@@ -20,10 +20,10 @@
     "buildPresets": [
       {
         "name": "default_config",
-        "displayName": "Build gateway_bgm220p",
+        "displayName": "Build BGM220P_OLED_I2C",
         "configurePreset": "project",
         "configuration": "base",
-        "targets": ["gateway_bgm220p"]
+        "targets": ["BGM220P_OLED_I2C"]
       }
     ],
     "workflowPresets": [

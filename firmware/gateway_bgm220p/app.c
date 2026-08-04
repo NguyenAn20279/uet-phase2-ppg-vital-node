@@ -1,125 +1,66 @@
 /***************************************************************************//**
  * @file
- * @brief Core application logic.
+ * @brief Top level application functions
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
- * SPDX-License-Identifier: Zlib
- *
- * The licensor of this software is Silicon Laboratories Inc.
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would be
- *    appreciated but is not required.
- * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
- * 3. This notice may not be removed or altered from any source distribution.
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_bt_api.h"
-#include "sl_main_init.h"
-#include "app_assert.h"
-#include "app.h"
 
-// The advertising set handle allocated from Bluetooth stack.
-static uint8_t advertising_set_handle = 0xff;
-
-// Application Init.
+/***************************************************************************//**
+ * Initialize application.
+ ******************************************************************************/
+#include "sl_i2cspm_instances.h"   
+#include "ssd1306.h"
+#include "sl_sleeptimer.h"
+#include "app_log.h"
+#include <stdio.h>
+ 
+static sl_sleeptimer_timer_handle_t update_timer;
+static volatile bool update_due = false;
+static uint16_t counter = 0;
+ 
+static void update_timer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
+{
+  (void)handle;
+  (void)data;
+  update_due = true; // chỉ set cờ trong callback, xử lý thật ở main loop
+}
+ 
 void app_init(void)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Put your additional application init code here!                         //
-  // This is called once during start-up.                                    //
-  /////////////////////////////////////////////////////////////////////////////
+  if (ssd1306_init(sl_i2cspm_oled)) {
+    app_log_info("OLED: khoi tao thanh cong\r\n");
+ 
+    ssd1306_print_line(sl_i2cspm_oled, 0, "OLED TEST OK");
+    ssd1306_print_line(sl_i2cspm_oled, 1, "BGM220P I2C");
+  } else {
+    app_log_error("OLED: khong tim thay man hinh / loi I2C\r\n");
+    return;
+  }
+ 
+  // Cập nhật 1 dòng đếm số mỗi giây để xác nhận màn hình không bị treo/đứng hình
+  sl_sleeptimer_start_periodic_timer_ms(&update_timer, 1000,
+                                         update_timer_callback, NULL, 0, 0);
 }
-
-// Application Process Action.
+ 
 void app_process_action(void)
 {
-  if (app_is_process_required()) {
-    /////////////////////////////////////////////////////////////////////////////
-    // Put your additional application code here!                              //
-    // This is will run each time app_proceed() is called.                     //
-    // Do not call blocking functions from here!                               //
-    /////////////////////////////////////////////////////////////////////////////
-  }
-}
-
-/**************************************************************************//**
- * Bluetooth stack event handler.
- * This overrides the default weak implementation.
- *
- * @param[in] evt Event coming from the Bluetooth stack.
- *****************************************************************************/
-void sl_bt_on_event(sl_bt_msg_t *evt)
-{
-  sl_status_t sc;
-
-  switch (SL_BT_MSG_ID(evt->header)) {
-    // -------------------------------
-    // This event indicates the device has started and the radio is ready.
-    // Do not call any stack command before receiving this boot event!
-    case sl_bt_evt_system_boot_id:
-      // Create an advertising set.
-      sc = sl_bt_advertiser_create_set(&advertising_set_handle);
-      app_assert_status(sc);
-
-      // Generate data for advertising
-      sc = sl_bt_legacy_advertiser_generate_data(advertising_set_handle,
-                                                 sl_bt_advertiser_general_discoverable);
-      app_assert_status(sc);
-
-      // Set advertising interval to 100ms.
-      sc = sl_bt_advertiser_set_timing(
-        advertising_set_handle,
-        160, // min. adv. interval (milliseconds * 1.6)
-        160, // max. adv. interval (milliseconds * 1.6)
-        0,   // adv. duration
-        0);  // max. num. adv. events
-      app_assert_status(sc);
-      // Start advertising and enable connections.
-      sc = sl_bt_legacy_advertiser_start(advertising_set_handle,
-                                         sl_bt_legacy_advertiser_connectable);
-      app_assert_status(sc);
-      break;
-
-    // -------------------------------
-    // This event indicates that a new connection was opened.
-    case sl_bt_evt_connection_opened_id:
-      break;
-
-    // -------------------------------
-    // This event indicates that a connection was closed.
-    case sl_bt_evt_connection_closed_id:
-      // Generate data for advertising
-      sc = sl_bt_legacy_advertiser_generate_data(advertising_set_handle,
-                                                 sl_bt_advertiser_general_discoverable);
-      app_assert_status(sc);
-
-      // Restart advertising after client has disconnected.
-      sc = sl_bt_legacy_advertiser_start(advertising_set_handle,
-                                         sl_bt_legacy_advertiser_connectable);
-      app_assert_status(sc);
-      break;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Add additional event handlers here as your application requires!      //
-    ///////////////////////////////////////////////////////////////////////////
-
-    // -------------------------------
-    // Default event handler.
-    default:
-      break;
+  if (update_due) {
+    update_due = false;
+ 
+    char line[17];
+    snprintf(line, sizeof(line), "COUNT:%05u", counter);
+    ssd1306_print_line(sl_i2cspm_oled, 3, line);
+ 
+    counter++;
   }
 }

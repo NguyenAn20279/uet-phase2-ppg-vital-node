@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Baremetal compatibility layer.
+ * @brief DEVICE_INIT_EMU Config
  *******************************************************************************
  * # License
- * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,55 +27,28 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include <stdint.h>
-#include <stdbool.h>
-#include "sl_core.h"
-#include "sl_main_init.h"
-#include "app.h"
 
-// "Semaphore" indicating that it is required to execute application process action.
-static uint16_t proceed_request;
+#ifndef SL_DEVICE_INIT_EMU_CONFIG_H
+#define SL_DEVICE_INIT_EMU_CONFIG_H
 
-// Application Runtime Init.
-void app_init_bt(void)
-{
-  proceed_request = 0;
-}
+#include "em_emu.h"
 
-// Proceed with execution.
-void app_proceed(void)
-{
-  CORE_DECLARE_IRQ_STATE;
-  CORE_ENTER_CRITICAL();
-  if (proceed_request < UINT16_MAX) {
-    proceed_request++;
-  }
-  CORE_EXIT_CRITICAL();
-}
+// <<< Use Configuration Wizard in Context Menu >>>
 
-// Check if it is required to process with execution.
-bool app_is_process_required(void)
-{
-  bool ret = false;
-  CORE_DECLARE_IRQ_STATE;
-  CORE_ENTER_CRITICAL();
-  if (proceed_request > 0) {
-    proceed_request--;
-    ret = true;
-  }
-  CORE_EXIT_CRITICAL();
-  return ret;
-}
+// <q> Allow debugger to remain connected in EM2
+// <i> Force PD0B to stay on on EM2 entry. This allows the debugger to remain connected in EM2 and EM3.
+// <i> Enabling debug connectivity results in an increased power consumption in EM2/EM3.
+// <i> Default: 1
+#define SL_DEVICE_INIT_EMU_EM2_DEBUG_ENABLE   1
 
-// Acquire access to protected variables
-bool app_mutex_acquire(void)
-{
-  // There are no tasks to protect shared resources from.
-  return true;
-}
+// <o SL_DEVICE_INIT_EMU_EM4_PIN_RETENTION_MODE> EM4 pin retention mode
+// <emuPinRetentionDisable=> No Retention: Pads enter reset state when entering EM4.
+// <emuPinRetentionEm4Exit=> Retention through EM4: Pads enter reset state when exiting EM4.
+// <emuPinRetentionLatch=> Retention through EM4 and wakeup.
+// <i> Default: emuPinRetentionDisable
+#define SL_DEVICE_INIT_EMU_EM4_PIN_RETENTION_MODE  emuPinRetentionDisable
 
-// Finish access to protected variables
-void app_mutex_release(void)
-{
-  // There are no tasks to protect shared resources from.
-}
+// <<< end of configuration section >>>
+
+#endif // SL_DEVICE_INIT_EMU_CONFIG_H
+
