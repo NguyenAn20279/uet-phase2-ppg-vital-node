@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief Memory Heap and stack size configuration file.
+ * @brief Simple Button Driver Configuration
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -28,25 +28,46 @@
  *
  ******************************************************************************/
 
+#ifndef SL_SIMPLE_BUTTON_CONFIG_H
+#define SL_SIMPLE_BUTTON_CONFIG_H
+
+#include "sl_gpio.h"
 // <<< Use Configuration Wizard in Context Menu >>>
 
-#ifndef SL_MEMORY_MANAGER_REGION_CONFIG_H
-#define SL_MEMORY_MANAGER_REGION_CONFIG_H
+// <h> Simple Button Driver Configuration
 
-#include "sl_component_catalog.h"
+// <o SL_SIMPLE_BUTTON_DEBOUNCE_BITS> Number of bits <1-15>
+// <i> Default: 5
+// <i> Defines the number of calls to sl_simple_button_poll_step wherein the button
+// <i> state must remain the same before the button state is considered debounced
+#define SL_SIMPLE_BUTTON_DEBOUNCE_BITS    5U
 
-// <h> Memory configuration
+// <o SL_SIMPLE_BUTTON_GPIO_MODE>
+// <SL_GPIO_MODE_INPUT=> GPIO Input
+// <SL_GPIO_MODE_INPUT_PULL=> GPIO Input Pull
+// <SL_GPIO_MODE_INPUT_PULL_FILTER=> GPIO Input Pull Filter
+// <i> Default: gpioModeInput
+#define SL_SIMPLE_BUTTON_GPIO_MODE        SL_GPIO_MODE_INPUT
 
-// <o SL_STACK_SIZE> Stack size for the application.
-// <i> Default: 4096
-// <i> The stack size configured here will be used by the stack that the
-// <i> application uses when coming out of a reset.
-#ifndef SL_STACK_SIZE
-#define SL_STACK_SIZE 2752
-#endif
+// <q SL_SIMPLE_BUTTON_GPIO_DOUT>
+// <i> SL_SIMPLE_BUTTON_GPIO_MODE == SL_GPIO_MODE_INPUT, Filter if DOUT is set
+// <i> SL_SIMPLE_BUTTON_GPIO_MODE == SL_GPIO_MODE_INPUT_PULL, DOUT determines pull direction
+#define SL_SIMPLE_BUTTON_GPIO_DOUT        0U
+
+// <q SL_SIMPLE_BUTTON_POLARITY>
+// <i> 0  Active Low
+// <i> 1  Active High
+// <i> Default: 0
+#define SL_SIMPLE_BUTTON_POLARITY         0U
+
+// <q SL_SIMPLE_BUTTON_ALLOW_LED_CONFLICT> Allow the app to manage Buttons and LEDs on the same pin
+// <i> 0  Error if Buttons and LEDs are on the same pin
+// <i> 1  Do not error if Buttons and LEDs are on the same pin
+// <i> Default: 0
+#define SL_SIMPLE_BUTTON_ALLOW_LED_CONFLICT  0U
+
 // </h>
 
 // <<< end of configuration section >>>
-
-#endif /* SL_MEMORY_MANAGER_REGION_CONFIG_H */
+#endif // SL_SIMPLE_BUTTON_CONFIG_H
 

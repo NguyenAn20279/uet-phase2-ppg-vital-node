@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Memory Heap and stack size configuration file.
+ * @brief SL_MX25_FLASH_SHUTDOWN_USART Config
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -28,25 +28,41 @@
  *
  ******************************************************************************/
 
-// <<< Use Configuration Wizard in Context Menu >>>
+#ifndef SL_MX25_FLASH_SHUTDOWN_CONFIG_H
+#define SL_MX25_FLASH_SHUTDOWN_CONFIG_H
 
-#ifndef SL_MEMORY_MANAGER_REGION_CONFIG_H
-#define SL_MEMORY_MANAGER_REGION_CONFIG_H
+// <<< sl:start pin_tool >>>
+// {eusart signal=TX,RX,SCLK} SL_MX25_FLASH_SHUTDOWN
+// [EUSART_SL_MX25_FLASH_SHUTDOWN]
+#define SL_MX25_FLASH_SHUTDOWN_PERIPHERAL        EUSART1
+#define SL_MX25_FLASH_SHUTDOWN_PERIPHERAL_NO     1
 
-#include "sl_component_catalog.h"
+// EUSART1 TX on PC01
+#define SL_MX25_FLASH_SHUTDOWN_TX_PORT           SL_GPIO_PORT_C
+#define SL_MX25_FLASH_SHUTDOWN_TX_PIN            1
 
-// <h> Memory configuration
+// EUSART1 RX on PC02
+#define SL_MX25_FLASH_SHUTDOWN_RX_PORT           SL_GPIO_PORT_C
+#define SL_MX25_FLASH_SHUTDOWN_RX_PIN            2
 
-// <o SL_STACK_SIZE> Stack size for the application.
-// <i> Default: 4096
-// <i> The stack size configured here will be used by the stack that the
-// <i> application uses when coming out of a reset.
-#ifndef SL_STACK_SIZE
-#define SL_STACK_SIZE 2752
+// EUSART1 SCLK on PC03
+#define SL_MX25_FLASH_SHUTDOWN_SCLK_PORT         SL_GPIO_PORT_C
+#define SL_MX25_FLASH_SHUTDOWN_SCLK_PIN          3
+
+// [EUSART_SL_MX25_FLASH_SHUTDOWN]
+
+// <gpio> SL_MX25_FLASH_SHUTDOWN_CS
+
+// $[GPIO_SL_MX25_FLASH_SHUTDOWN_CS]
+#ifndef SL_MX25_FLASH_SHUTDOWN_CS_PORT          
+#define SL_MX25_FLASH_SHUTDOWN_CS_PORT           SL_GPIO_PORT_C
 #endif
-// </h>
+#ifndef SL_MX25_FLASH_SHUTDOWN_CS_PIN           
+#define SL_MX25_FLASH_SHUTDOWN_CS_PIN            4
+#endif
+// [GPIO_SL_MX25_FLASH_SHUTDOWN_CS]$
 
-// <<< end of configuration section >>>
+// <<< sl:end pin_tool >>>
 
-#endif /* SL_MEMORY_MANAGER_REGION_CONFIG_H */
+#endif // SL_MX25_FLASH_SHUTDOWN_CONFIG_H
 

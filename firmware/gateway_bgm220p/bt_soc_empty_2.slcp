@@ -1,6 +1,6 @@
 # Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
-project_name: gateway_bgm220p
-label: gateway_bgm220p
+project_name: bt_soc_empty_2
+label: bt_soc_empty_2
 description: |
   A minimal project structure, that serves as a starting point for custom Bluetooth applications. The application starts advertising after boot and restarts advertising after a connection is closed.
 category: Bluetooth Examples
@@ -42,6 +42,9 @@ component:
   id: app_assert
 - package: simplicity_sdk
   vendor: silabs
+  id: app_log
+- package: simplicity_sdk
+  vendor: silabs
   id: app_os_helper
 - package: simplicity_sdk
   vendor: silabs
@@ -49,6 +52,9 @@ component:
 - package: simplicity_sdk
   vendor: silabs
   id: bluetooth_feature_connection_role_peripheral
+- package: simplicity_sdk
+  vendor: silabs
+  id: bluetooth_feature_extended_scanner
 - package: simplicity_sdk
   vendor: silabs
   id: bluetooth_feature_gatt
@@ -81,16 +87,29 @@ component:
   id: device_init
 - package: simplicity_sdk
   vendor: silabs
+  id: ead_core
+- package: simplicity_sdk
+  vendor: silabs
   id: gatt_configuration
 - package: simplicity_sdk
   vendor: silabs
   id: gatt_service_device_information_override
+- package: simplicity_sdk
+  instance:
+  - vcom
+  vendor: silabs
+  id: iostream_usart
 - package: simplicity_sdk
   vendor: silabs
   id: mpu
 - package: simplicity_sdk
   vendor: silabs
   id: rail_util_pti
+- package: simplicity_sdk
+  instance:
+  - btn0
+  vendor: silabs
+  id: simple_button
 - package: simplicity_sdk
   vendor: silabs
   id: sl_main
@@ -181,6 +200,9 @@ autoselected_components:
   id: brd4314a_config
 - package: simplicity_sdk
   vendor: silabs
+  id: button
+- package: simplicity_sdk
+  vendor: silabs
   id: clock_manager_init_hal_s2
 - package: simplicity_sdk
   vendor: silabs
@@ -197,6 +219,12 @@ autoselected_components:
 - package: simplicity_sdk
   vendor: silabs
   id: component_catalog
+- package: simplicity_sdk
+  vendor: silabs
+  id: configuration_over_swo
+- package: simplicity_sdk
+  vendor: silabs
+  id: debug_swo
 - package: simplicity_sdk
   vendor: silabs
   id: device_clock
@@ -230,6 +258,21 @@ autoselected_components:
 - package: simplicity_sdk
   vendor: silabs
   id: device_peripheral_hal
+- package: simplicity_sdk
+  vendor: silabs
+  id: dma_channel
+- package: simplicity_sdk
+  vendor: silabs
+  id: dma_descriptor_allocator
+- package: simplicity_sdk
+  vendor: silabs
+  id: dma_manager
+- package: simplicity_sdk
+  vendor: silabs
+  id: dma_manager_hal_ldma
+- package: simplicity_sdk
+  vendor: silabs
+  id: dma_manager_init
 - package: simplicity_sdk
   vendor: silabs
   id: ecode
@@ -275,6 +318,9 @@ autoselected_components:
 - package: simplicity_sdk
   vendor: silabs
   id: emlib_timer
+- package: simplicity_sdk
+  vendor: silabs
+  id: emlib_usart
 - package: simplicity_sdk
   vendor: silabs
   id: enum
@@ -323,6 +369,21 @@ autoselected_components:
 - package: simplicity_sdk
   vendor: silabs
   id: interrupt_manager_cortexm
+- package: simplicity_sdk
+  vendor: silabs
+  id: iostream
+- package: simplicity_sdk
+  vendor: silabs
+  id: iostream_retarget_stdio
+- package: simplicity_sdk
+  vendor: silabs
+  id: iostream_stdlib_config
+- package: simplicity_sdk
+  vendor: silabs
+  id: iostream_uart_common
+- package: simplicity_sdk
+  vendor: silabs
+  id: iostream_usart_core
 - package: simplicity_sdk
   vendor: silabs
   id: libcryptosoc
@@ -418,6 +479,9 @@ autoselected_components:
   id: psa_crypto_api
 - package: simplicity_sdk
   vendor: silabs
+  id: psa_crypto_ccm
+- package: simplicity_sdk
+  vendor: silabs
   id: psa_crypto_cipher_ecb
 - package: simplicity_sdk
   vendor: silabs
@@ -499,6 +563,9 @@ autoselected_components:
   id: se_manager_mailbox_default
 - package: simplicity_sdk
   vendor: silabs
+  id: simple_button_core
+- package: simplicity_sdk
+  vendor: silabs
   id: sl_assert
 - package: simplicity_sdk
   vendor: silabs
@@ -527,6 +594,9 @@ autoselected_components:
 - package: simplicity_sdk
   vendor: silabs
   id: sl_rail_util_pti
+- package: simplicity_sdk
+  vendor: silabs
+  id: sl_string
 - package: simplicity_sdk
   vendor: silabs
   id: sleeptimer

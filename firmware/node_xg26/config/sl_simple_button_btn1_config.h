@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief Memory Heap and stack size configuration file.
+ * @brief Simple Button Driver User Config
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -28,25 +28,35 @@
  *
  ******************************************************************************/
 
+#ifndef SL_SIMPLE_BUTTON_BTN1_CONFIG_H
+#define SL_SIMPLE_BUTTON_BTN1_CONFIG_H
+
+#include "sl_gpio.h"
+#include "sl_simple_button.h"
+
 // <<< Use Configuration Wizard in Context Menu >>>
 
-#ifndef SL_MEMORY_MANAGER_REGION_CONFIG_H
-#define SL_MEMORY_MANAGER_REGION_CONFIG_H
-
-#include "sl_component_catalog.h"
-
-// <h> Memory configuration
-
-// <o SL_STACK_SIZE> Stack size for the application.
-// <i> Default: 4096
-// <i> The stack size configured here will be used by the stack that the
-// <i> application uses when coming out of a reset.
-#ifndef SL_STACK_SIZE
-#define SL_STACK_SIZE 2752
-#endif
-// </h>
-
+// <o SL_SIMPLE_BUTTON_BTN1_MODE>
+// <SL_SIMPLE_BUTTON_MODE_INTERRUPT=> Interrupt
+// <SL_SIMPLE_BUTTON_MODE_POLL_AND_DEBOUNCE=> Poll and Debounce
+// <SL_SIMPLE_BUTTON_MODE_POLL=> Poll
+// <i> Default: SL_SIMPLE_BUTTON_MODE_INTERRUPT
+#define SL_SIMPLE_BUTTON_BTN1_MODE       SL_SIMPLE_BUTTON_MODE_INTERRUPT
 // <<< end of configuration section >>>
 
-#endif /* SL_MEMORY_MANAGER_REGION_CONFIG_H */
+// <<< sl:start pin_tool >>>
+
+// <gpio> SL_SIMPLE_BUTTON_BTN1
+// $[GPIO_SL_SIMPLE_BUTTON_BTN1]
+#ifndef SL_SIMPLE_BUTTON_BTN1_PORT              
+#define SL_SIMPLE_BUTTON_BTN1_PORT               SL_GPIO_PORT_B
+#endif
+#ifndef SL_SIMPLE_BUTTON_BTN1_PIN               
+#define SL_SIMPLE_BUTTON_BTN1_PIN                3
+#endif
+// [GPIO_SL_SIMPLE_BUTTON_BTN1]$
+
+// <<< sl:end pin_tool >>>
+
+#endif // SL_SIMPLE_BUTTON_BTN1_CONFIG_H
 

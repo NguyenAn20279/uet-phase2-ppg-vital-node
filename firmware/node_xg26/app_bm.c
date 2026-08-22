@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Memory Heap and stack size configuration file.
+ * @brief Baremetal compatibility layer.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,26 +27,55 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include <stdint.h>
+#include <stdbool.h>
+#include "sl_core.h"
+#include "sl_main_init.h"
+#include "app.h"
 
-// <<< Use Configuration Wizard in Context Menu >>>
+// "Semaphore" indicating that it is required to execute application process action.
+static uint16_t proceed_request;
 
-#ifndef SL_MEMORY_MANAGER_REGION_CONFIG_H
-#define SL_MEMORY_MANAGER_REGION_CONFIG_H
+// Application Runtime Init.
+void app_init_bt(void)
+{
+  proceed_request = 0;
+}
 
-#include "sl_component_catalog.h"
+// Proceed with execution.
+void app_proceed(void)
+{
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
+  if (proceed_request < UINT16_MAX) {
+    proceed_request++;
+  }
+  CORE_EXIT_CRITICAL();
+}
 
-// <h> Memory configuration
+// Check if it is required to process with execution.
+bool app_is_process_required(void)
+{
+  bool ret = false;
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
+  if (proceed_request > 0) {
+    proceed_request--;
+    ret = true;
+  }
+  CORE_EXIT_CRITICAL();
+  return ret;
+}
 
-// <o SL_STACK_SIZE> Stack size for the application.
-// <i> Default: 4096
-// <i> The stack size configured here will be used by the stack that the
-// <i> application uses when coming out of a reset.
-#ifndef SL_STACK_SIZE
-#define SL_STACK_SIZE 2752
-#endif
-// </h>
+// Acquire access to protected variables
+bool app_mutex_acquire(void)
+{
+  // There are no tasks to protect shared resources from.
+  return true;
+}
 
-// <<< end of configuration section >>>
-
-#endif /* SL_MEMORY_MANAGER_REGION_CONFIG_H */
-
+// Finish access to protected variables
+void app_mutex_release(void)
+{
+  // There are no tasks to protect shared resources from.
+}

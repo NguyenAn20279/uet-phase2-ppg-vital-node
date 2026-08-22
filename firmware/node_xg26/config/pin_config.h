@@ -7,9 +7,6 @@
 // $[LFXO]
 // [LFXO]$
 
-// $[KEYSCAN]
-// [KEYSCAN]$
-
 // $[PRS.ASYNCH0]
 // [PRS.ASYNCH0]$
 
@@ -71,6 +68,14 @@
 // [PRS.SYNCH3]$
 
 // $[GPIO]
+// GPIO SWV on PA03
+#ifndef GPIO_SWV_PORT                           
+#define GPIO_SWV_PORT                            SL_GPIO_PORT_A
+#endif
+#ifndef GPIO_SWV_PIN                            
+#define GPIO_SWV_PIN                             3
+#endif
+
 // [GPIO]$
 
 // $[TIMER0]
@@ -88,50 +93,49 @@
 // $[TIMER4]
 // [TIMER4]$
 
-// $[TIMER5]
-// [TIMER5]$
-
-// $[TIMER6]
-// [TIMER6]$
-
-// $[TIMER7]
-// [TIMER7]$
-
-// $[TIMER8]
-// [TIMER8]$
-
-// $[TIMER9]
-// [TIMER9]$
-
-// $[EUSART1]
-// [EUSART1]$
-
-// $[EUSART2]
-// [EUSART2]$
-
-// $[EUSART3]
-// [EUSART3]$
-
 // $[USART0]
+// USART0 CTS on PB05
+#ifndef USART0_CTS_PORT                         
+#define USART0_CTS_PORT                          SL_GPIO_PORT_B
+#endif
+#ifndef USART0_CTS_PIN                          
+#define USART0_CTS_PIN                           5
+#endif
+
+// USART0 RTS on PA00
+#ifndef USART0_RTS_PORT                         
+#define USART0_RTS_PORT                          SL_GPIO_PORT_A
+#endif
+#ifndef USART0_RTS_PIN                          
+#define USART0_RTS_PIN                           0
+#endif
+
+// USART0 RX on PA09
+#ifndef USART0_RX_PORT                          
+#define USART0_RX_PORT                           SL_GPIO_PORT_A
+#endif
+#ifndef USART0_RX_PIN                           
+#define USART0_RX_PIN                            9
+#endif
+
+// USART0 TX on PA08
+#ifndef USART0_TX_PORT                          
+#define USART0_TX_PORT                           SL_GPIO_PORT_A
+#endif
+#ifndef USART0_TX_PIN                           
+#define USART0_TX_PIN                            8
+#endif
+
 // [USART0]$
-
-// $[USART1]
-// [USART1]$
-
-// $[USART2]
-// [USART2]$
 
 // $[I2C1]
 // [I2C1]$
 
-// $[I2C2]
-// [I2C2]$
+// $[EUSART1]
+// [EUSART1]$
 
-// $[I2C3]
-// [I2C3]$
-
-// $[LCD]
-// [LCD]$
+// $[KEYSCAN]
+// [KEYSCAN]$
 
 // $[LETIMER0]
 // [LETIMER0]$
@@ -153,6 +157,9 @@
 
 // $[PCNT0]
 // [PCNT0]$
+
+// $[HFXO0]
+// [HFXO0]$
 
 // $[I2C0]
 // [I2C0]$

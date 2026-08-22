@@ -8,7 +8,7 @@
     "configurePresets": [
       {
         "name": "project",
-        "displayName": "Configure node_xg26",
+        "displayName": "Configure bt_soc_empty",
         "generator": "Ninja Multi-Config",
         "binaryDir": "${sourceDir}/build",
         "toolchainFile": "${sourceDir}/toolchain.cmake",
@@ -20,10 +20,10 @@
     "buildPresets": [
       {
         "name": "default_config",
-        "displayName": "Build node_xg26",
+        "displayName": "Build bt_soc_empty",
         "configurePreset": "project",
         "configuration": "base",
-        "targets": ["node_xg26"]
+        "targets": ["bt_soc_empty"]
       }
     ],
     "workflowPresets": [

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Memory Heap and stack size configuration file.
+ * @brief ESL Tag Core component configuration macros
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,26 +27,27 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#ifndef EAD_CORE_CONFIG_H
+#define EAD_CORE_CONFIG_H
+
+#define SL_BT_EAD_CORE_USE_PSA_ACC  0
+
+#define SL_BT_EAD_CORE_USE_RADIOAES 1
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-#ifndef SL_MEMORY_MANAGER_REGION_CONFIG_H
-#define SL_MEMORY_MANAGER_REGION_CONFIG_H
+// <h> Encrypted Advertiser Core configuration
 
-#include "sl_component_catalog.h"
-
-// <h> Memory configuration
-
-// <o SL_STACK_SIZE> Stack size for the application.
-// <i> Default: 4096
-// <i> The stack size configured here will be used by the stack that the
-// <i> application uses when coming out of a reset.
-#ifndef SL_STACK_SIZE
-#define SL_STACK_SIZE 2752
-#endif
+// <o SL_BT_EAD_CORE_ACCELERATOR> Cryptographic engine
+// <SL_BT_EAD_CORE_USE_PSA_ACC=> PSA Crypto
+// <SL_BT_EAD_CORE_USE_RADIOAES=> Radio AES
+// <i> Select cryptography accelerator type to use
+// <i> Radio AES is highly experimental and therefore not recommended!
+// <i> Default: PSA Crypto
+#define SL_BT_EAD_CORE_ACCELERATOR                  SL_BT_EAD_CORE_USE_PSA_ACC
 // </h>
 
 // <<< end of configuration section >>>
 
-#endif /* SL_MEMORY_MANAGER_REGION_CONFIG_H */
+#endif // EAD_CORE_CONFIG_H
 
