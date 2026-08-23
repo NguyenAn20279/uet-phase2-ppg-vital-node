@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION "3.25")
 
 # Project definition
 project(
-	bt_soc_empty_2
-	VERSION 1.0
-	LANGUAGES C CXX ASM
+    bt_soc_empty_2
+    VERSION 1.0
+    LANGUAGES C CXX ASM
 )
 
 # Include the definition of the slc_bt_soc_empty_2 target,
@@ -13,11 +13,14 @@ project(
 include(bt_soc_empty_2.cmake)
 
 add_executable(bt_soc_empty_2
-    # Add additional sources here
+    # Trỏ lùi ra thư mục cha để tìm file ssd1306.c
+    "${CMAKE_CURRENT_SOURCE_DIR}/../ssd1306.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../ssd1306_font.c"
 )
 
 target_include_directories(bt_soc_empty_2 PUBLIC
-    # Add additional include paths here
+    # Thêm đường dẫn header ở thư mục gốc
+    "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 
 target_compile_definitions(bt_soc_empty_2 PUBLIC

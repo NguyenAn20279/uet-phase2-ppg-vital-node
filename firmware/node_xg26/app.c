@@ -42,12 +42,14 @@ char name[] = "Encrypted Advertiser";
 // Custom Health Service Payload Structure
 // -----------------------------------------------------------------------------
 typedef struct {
-  uint8_t heart_rate;   // Heart rate in beats per minute (bpm)
-  uint8_t body_temp;    // Body temperature in Celsius
-  uint8_t spo2;         // Blood oxygen saturation percentage (%)
+  uint8_t heart_rate;   // Nhịp tim (bpm)
+  uint8_t systolic;     // Huyết áp tâm thu (mmHg)
+  uint8_t diastolic;    // Huyết áp tâm trương (mmHg)
+  uint8_t spo2;         // Nồng độ oxy trong máu (%)
 } health_data_t;
 
-static health_data_t health_payload = { .heart_rate = 72, .body_temp = 37, .spo2 = 98 };
+
+static health_data_t health_payload = { .heart_rate = 72, .systolic = 67, .diastolic = 69, .spo2 = 98 };
 
 sl_sleeptimer_timer_handle_t payload_timer_handle;
 
@@ -113,31 +115,32 @@ sl_status_t construct_advertisement_payload(sl_bt_ead_key_material_p key_materia
   sl_status_t sc = SL_STATUS_FAIL;
   *index = 0;
 
-  // 1. Simulate new health measurement data
-  health_payload.heart_rate = 60 + (rand() % 40); // 60-99 bpm
-  health_payload.body_temp  = 36 + (rand() % 3);  // 36-38 C
-  health_payload.spo2       = 95 + (rand() % 5);  // 95-99 %
+  // 1. Giả lập dữ liệu sức khỏe mới (Thêm Systolic & Diastolic, bỏ Temp)
+  health_payload.heart_rate = 60 + (rand() % 40);  // 60-99 bpm
+  health_payload.systolic   = 110 + (rand() % 30); // 110-139 mmHg
+  health_payload.diastolic  = 70 + (rand() % 20);  // 70-89 mmHg
+  health_payload.spo2       = 95 + (rand() % 5);   // 95-99 %
 
   // 2. Add unencrypted header: Flags
-  advertisement_buffer[(*index)++] = 0x02; // Ad structure len
-  advertisement_buffer[(*index)++] = 0x01; // Ad structure type
-  advertisement_buffer[(*index)++] = 0x06; // Ad structure data
+  advertisement_buffer[(*index)++] = 0x02; 
+  advertisement_buffer[(*index)++] = 0x01; 
+  advertisement_buffer[(*index)++] = 0x06; 
 
   // 3. Add unencrypted header: Complete Local Name
-  advertisement_buffer[(*index)++] = strlen(name) + 1;       // Ad structure len
-  advertisement_buffer[(*index)++] = 0x09;                   // Ad structure type
-  memcpy(advertisement_buffer + *index, name, strlen(name)); // Ad structure data
+  advertisement_buffer[(*index)++] = strlen(name) + 1;       
+  advertisement_buffer[(*index)++] = 0x09;                   
+  memcpy(advertisement_buffer + *index, name, strlen(name)); 
   *index += strlen(name);
 
   // 4. Construct encrypted health data structure
   uint8_t health_data_buf[BLE_EA_ADV_DATA_LEN];
-  size_t health_data_len = 2 + sizeof(health_data_t); // len + type + payload
+  size_t health_data_len = 2 + sizeof(health_data_t); 
 
   sl_bt_ead_mic_t message_integraty_check;
 
-  health_data_buf[0] = sizeof(health_data_t) + 1; // AD structure len
-  health_data_buf[1] = 0x16;                       // AD structure type (Service Data)
-  memcpy(health_data_buf + 2, &health_payload, sizeof(health_data_t)); // AD structure data
+  health_data_buf[0] = sizeof(health_data_t) + 1; 
+  health_data_buf[1] = 0x16;                       
+  memcpy(health_data_buf + 2, &health_payload, sizeof(health_data_t)); 
 
   // Encrypt the health payload
   sc = sl_bt_ead_encrypt(key_material, nonce, health_data_len, health_data_buf, message_integraty_check);
@@ -154,8 +157,8 @@ sl_status_t construct_advertisement_payload(sl_bt_ead_key_material_p key_materia
   sc = sl_bt_ead_pack_ad_data(encrypted_ad_structure, encrypted_data_length, advertisement_buffer + *index);
 
   app_log("--------------------------------------------------------------------------\n\r");
-  app_log("Health Payload before encryption -> Heart Rate: %d bpm, Temp: %d C, SpO2: %d%%\n\r",
-          health_payload.heart_rate, health_payload.body_temp, health_payload.spo2);
+  app_log("Health Payload before encryption -> Heart Rate: %d bpm, BP: %d/%d mmHg, SpO2: %d%%\n\r",
+          health_payload.heart_rate, health_payload.systolic, health_payload.diastolic, health_payload.spo2);
   app_log("Information after encryption:\n\r");
   for (uint8_t i = *index; i < *index + *encrypted_data_length; i++) {
     app_log("%02X", advertisement_buffer[i]);
