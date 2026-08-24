@@ -19,7 +19,7 @@
 
 #define PPG_TASK_NAME           "ppg_task"
 #define PPG_TASK_STACK_SIZE     768u
-#define PPG_TASK_PRIO           25u
+#define PPG_TASK_PRIO           26u
 
 #define FILTER_TASK_NAME        "filter_task"
 #define FILTER_TASK_STACK_SIZE  512u
@@ -30,8 +30,8 @@
 #define AI_TASK_PRIO              22u
 
 #define BT_DATA_TASK_NAME         "bt_data_task"
-#define BT_DATA_TASK_STACK_SIZE   512u
-#define BT_DATA_TASK_PRIO          21u
+#define BT_DATA_TASK_STACK_SIZE   2048u
+#define BT_DATA_TASK_PRIO          25u
 
 #define APP_MUTEX_WAIT         100 // Timeout to wait for mutex in ticks
 

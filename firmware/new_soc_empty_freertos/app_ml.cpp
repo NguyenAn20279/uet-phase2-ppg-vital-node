@@ -1,5 +1,6 @@
 #include "app_ml.h"
 #include "vitals.h"
+#include "sl_status.h"
 #include "sl_ml_model_bp_model_int8.h"   
 #include "sl_ml_tflite_micro_model.h"
 #include <string.h>
@@ -44,20 +45,18 @@ extern "C" void ml_init(void)
         return;
     }
     app_log_info("[ML] Model da khoi tao thanh cong. Dat ngon tay vao cam bien...\r\n");
-
-    TfLiteTensor *t = sl_ml_bp_model_int8_model_handle.input_tensor(0);
-    if (t != NULL) {
-        app_log_info("[ML][DEBUG] Input Tensor 0: dims->size=%d, dims=[", t->dims->size);
-        for (int d = 0; d < t->dims->size; d++) {
-            app_log_info("%d%s", t->dims->data[d], (d < t->dims->size - 1) ? "," : "");
-        }
-        app_log_info("], scale=%.6f, zero_point=%d\r\n", t->params.scale, (int)t->params.zero_point);
-    } else {
-        app_log_error("[ML][DEBUG] Input Tensor 0 is NULL!\r\n");
-    }
+    // TfLiteTensor *t = sl_ml_bp_model_int8_model_handle.input_tensor(0);
+    // if (t != NULL) {
+    //     app_log_info("[ML][DEBUG] Input Tensor 0: dims->size=%d, dims=[", t->dims->size);
+    //     for (int d = 0; d < t->dims->size; d++) {
+    //         app_log_info("%d%s", t->dims->data[d], (d < t->dims->size - 1) ? "," : "");
+    //     }
+    //     app_log_info("], scale=%.6f, zero_point=%d\r\n", t->params.scale, (int)t->params.zero_point);
+    // } else {
+    //     app_log_error("[ML][DEBUG] Input Tensor 0 is NULL!\r\n");
+    // }
     ml_reset();
 }
-
 extern "C" void ml_reset(void)
 {
     cb_write_idx = 0;
@@ -105,7 +104,7 @@ static void run_vitals_and_ai(void)
     vitals_compute(lin_red_bp, lin_ir_bp, lin_red_raw, lin_ir_raw,
                     PPG_WINDOW_SIZE, &vit);
 
-        if (!vit.finger_detected) {
+    if (!vit.finger_detected) {
         app_log_info("[RESULT] Khong phat hien ngon tay\r\n");
         ai_result_t res = {};
         if (xAIResultQueue) xQueueSend(xAIResultQueue, &res, 0);
@@ -153,7 +152,7 @@ static void run_vitals_and_ai(void)
     if (bp_ok)          app_log_info(" SBP=%.1f DBP=%.1f mmHg", sbp, dbp);
     else                app_log_info(" SBP=-- DBP=--");
     app_log_info("\r\n");
-        ai_result_t res = {};
+    ai_result_t res = {};
     res.finger_detected = vit.finger_detected;
     res.hr = vit.hr;     res.hr_valid = vit.hr_valid;
     res.spo2 = vit.spo2; res.spo2_valid = vit.spo2_valid;

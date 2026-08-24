@@ -46,12 +46,12 @@ void filter_task(void *p_arg)
                 // AI task xu ly chua kip -> drop, khong duoc block filter task
             }
 
-            if ((sample_index % 100) == 0) {
-                app_log_info(
-                    "[Filter] RED_bp=%.2f IR_bp=%.2f | RED_z=%.2f IR_z=%.2f\r\n",
-                    out.red_bp, out.ir_bp, out.red_z, out.ir_z
-                );
-            }
+            // if ((sample_index % 100) == 0) {
+            //      app_log_info(
+            //         "[Filter] RED_bp=%.2f IR_bp=%.2f | RED_z=%.2f IR_z=%.2f\r\n",
+            //          out.red_bp, out.ir_bp, out.red_z, out.ir_z
+            //      );
+            // }
             sample_index++;
         }
     }

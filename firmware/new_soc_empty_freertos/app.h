@@ -32,6 +32,9 @@
 #define APP_H
 
 #include <stdbool.h>
+#include <stdint.h>
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 /**************************************************************************//**
  * Proceed with execution. (Indicate that it is required to run the application
@@ -75,5 +78,15 @@ void app_mutex_release(void);
  * @note Must not be used from ISR context.
  *****************************************************************************/
 void app_init_bt(void);
+
+typedef struct {
+  uint8_t heart_rate;
+  uint8_t systolic;
+  uint8_t diastolic;
+  uint8_t spo2;
+} health_data_t;
+
+extern health_data_t health_payload;
+extern SemaphoreHandle_t g_health_payload_mutex;
 
 #endif // APP_H

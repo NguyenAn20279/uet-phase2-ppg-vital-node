@@ -59,6 +59,9 @@ component:
   id: bluetooth_feature_connection_role_peripheral
 - package: simplicity_sdk
   vendor: silabs
+  id: bluetooth_feature_extended_advertiser
+- package: simplicity_sdk
+  vendor: silabs
   id: bluetooth_feature_gatt
 - package: simplicity_sdk
   vendor: silabs
@@ -89,6 +92,9 @@ component:
   id: device_init
 - package: simplicity_sdk
   vendor: silabs
+  id: ead_core
+- package: simplicity_sdk
+  vendor: silabs
   id: freertos
 - package: simplicity_sdk
   vendor: silabs
@@ -115,6 +121,12 @@ component:
 - package: simplicity_sdk
   vendor: silabs
   id: rail_util_pti
+- package: simplicity_sdk
+  instance:
+  - btn0
+  - btn1
+  vendor: silabs
+  id: simple_button
 - package: simplicity_sdk
   vendor: silabs
   id: sl_main
@@ -215,6 +227,9 @@ autoselected_components:
 - package: simplicity_sdk
   vendor: silabs
   id: brd2709a_config
+- package: simplicity_sdk
+  vendor: silabs
+  id: button
 - package: simplicity_sdk
   vendor: silabs
   id: clock_manager_init_hal_s2
@@ -520,6 +535,9 @@ autoselected_components:
   id: psa_crypto_api
 - package: simplicity_sdk
   vendor: silabs
+  id: psa_crypto_ccm
+- package: simplicity_sdk
+  vendor: silabs
   id: psa_crypto_cipher_ecb
 - package: simplicity_sdk
   vendor: silabs
@@ -593,6 +611,9 @@ autoselected_components:
 - package: simplicity_sdk
   vendor: silabs
   id: se_manager_mailbox_default
+- package: simplicity_sdk
+  vendor: silabs
+  id: simple_button_core
 - package: simplicity_sdk
   vendor: silabs
   id: sl_assert
