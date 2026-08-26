@@ -1,206 +1,106 @@
-# UET Phase 2 - Team 7: Hệ Thống Node Thiết Bị Y Tế Đeo Tay Thông Minh
+# SoC - Empty
 
-Hệ thống giám sát sinh hiệu thời gian thực sử dụng **FreeRTOS**, bộ tăng tốc phần cứng **TinyML (MVP)** và truyền thông **BLE 5.4** mã hóa **AES-CCM** trên nền tảng vi điều khiển Silicon Labs.
+The Bluetooth SoC-Empty example is a project that you can use as a template for any standalone Bluetooth application.
 
----
+> Note: This example does not include Device Firmware Update (DFU) functionality by default. For details see the [Device Firmware Update](#device-firmware-update) section.
 
-## Kiến Trúc Tổng Quan Dự Án
+## Getting Started
 
-Dự án gồm 2 project chính được khởi tạo sẵn từ **Simplicity Studio v6 (Silicon Labs SDK)**:
+To learn the Bluetooth technology basics, see [UG103.14: Bluetooth LE Fundamentals](https://www.silabs.com/documents/public/user-guides/ug103-14-fundamentals-ble.pdf).
 
-* **`firmware/node_xg26/`**: Khối Node biên đeo tay.
-  * Thu thập tín hiệu PPG từ **MAX30102** (I2C, FIFO 100Hz).
-  * Tiền xử lý số: lọc **EMA** + bandpass **IIR SOS**, chuẩn hóa **Z-score** (cửa sổ 800 mẫu / 8s).
-  * Chạy mô hình TinyML **1D CNN ResNet + SE** (PTQ INT8) trên bộ tăng tốc **MVP** (độ trễ &lt; 80ms).
-  * Đóng gói kết quả sinh hiệu thành gói tin **8-byte**, mã hóa **AES-CCM** và phát **BLE 5.4 Encrypted Advertising**.
-* **`firmware/gateway_bgm220p/`**: Khối Gateway nhận & Hiển thị.
-  * Thu nhận và giải mã gói tin BLE 5.4 (AES-CCM) từ Node.
-  * Kiểm tra Packet Counter chống **Replay Attack**.
-  * Hiển thị HR / SpO2 / SBP / DBP lên màn hình **OLED (SH1106)**.
+To get started with Silicon Labs Bluetooth and Simplicity Studio, see [QSG169: Bluetooth SDK v3.x Quick Start Guide](https://www.silabs.com/documents/public/quick-start-guides/qsg169-bluetooth-sdk-v3x-quick-start-guide.pdf).
 
----
+The term SoC stands for "System on Chip", meaning that this is a standalone application that runs on the EFR32/BGM and does not require any external MCU or other active components to operate.
 
-## Cấu Trúc Thư Mục Toàn Repo
+As the name implies, the example is an (almost) empty template that has only the bare minimum to make a working Bluetooth application. This skeleton can be extended with the application logic.
 
-```text
-uet-phase2-ppg-vital-node/
-├── .gitignore                            <-- Gitignore chung (chặn autogen, build, dataset thô lớn)
-├── README.md                             <-- Giới thiệu dự án, hướng dẫn build & quy tắc
-│
-├── doc/                                  <-- Tài liệu thiết kế dự án
-│   ├── Requirement_Team7.docx            <-- File yêu cầu kỹ thuật của nhóm
-│   ├── Timeline_Team7.xlsx               <-- Kế hoạch & tiến độ thực hiện
-│   ├── pin-mapping.md                    <-- Bảng ánh xạ chân GPIO cho Node và Gateway
-│   └── [Nhóm 9]_Báo cáo cuối kỳ.pdf      <-- Báo cáo Phase 1 (nền tảng đề tài)
-│
-├── hardware/                             <-- Thiết kế phần cứng (sinh viên tự tổ chức)
-│   ├── gateway/
-│   └── node/
-│
-├── tinyml_workspace/                     <-- Workspace AI / TinyML (sinh viên tự tổ chức)
-│   ├── dataset/
-│   └── scripts/
-│
-└── firmware/                             <-- Mã nguồn nhúng (Silicon Labs SDK + FreeRTOS)
-    ├── gateway_bgm220p/                  <-- Project Gateway (Simplicity Studio Init)
-    │   ├── app.c
-    │   ├── main.c
-    │   └── gateway_bgm220p.slcp
-    │
-    └── node_xg26/                        <-- Project Node (Simplicity Studio Init)
-        ├── app.c
-        ├── main.c
-        └── node_xg26.slcp
-```
+The development of a Bluetooth applications consist of three main steps:
 
----
+* Designing the GATT database
+* Responding to the events raised by the Bluetooth stack
+* Implementing additional application logic
 
-## Cấu Trúc Thư Mục Gợi Ý Chi Tiết Cho Firmware (Layered Architecture)
+These steps are covered in the following sections. To learn more about programming an SoC application, see [UG434: Silicon Labs Bluetooth ® C Application Developer's Guide for SDK v3.x](https://www.silabs.com/documents/public/user-guides/ug434-bluetooth-c-soc-dev-guide-sdk-v3x.pdf).
 
-Khi phát triển thêm các tính năng mới, khuyến khích tổ chức code theo phân tầng (Layered Architecture) để tránh viết dồn vào `app.c` và giúp phân công công việc không bị giẫm chân lên nhau:
+## Designing the GATT Database
 
-```text
-firmware/
-├── gateway_bgm220p/                      <-- [BOARD GATEWAY]
-│   ├── inc/
-│   │   ├── app/                          <-- [Layer 4: Application]
-│   │   │   ├── app_gateway.h             (FreeRTOS Task management & Event Handling)
-│   │   │   └── app_config.h              (Cấu hình Queue, Semaphore, Stack size)
-│   │   ├── service/                      <-- [Layer 3: Service / Protocol & UI]
-│   │   │   ├── ble_crypto_rx.h           (Thu nhận & giải mã AES-CCM BLE 5.4)
-│   │   │   ├── replay_guard.h            (Kiểm tra Packet Counter chống Replay Attack)
-│   │   │   ├── display_service.h         (Quản lý layout hiển thị trên OLED)
-│   │   │   └── uart_display.h            (Gửi dữ liệu lên PC / Serial Log)
-│   │   ├── bsp/                          <-- [Layer 2: Board Support Package]
-│   │   │   ├── oled_sh1106.h             (Driver I2C vẽ pixel & char thô cho OLED SH1106)
-│   │   │   └── indicator.h               (Driver điều khiển LED / Buzzer cảnh báo)
-│   │   └── utils/                        <-- [System Utilities / Common Layer]
-│   │       ├── debug_log.h               (Logger wrapper qua UART IO Stream)
-│   │       ├── packet_format.h           (Định nghĩa gói tin plaintext 8-byte)
-│   │       └── error_codes.h             (Định nghĩa mã lỗi chung)
-│   │
-│   ├── src/
-│   │   ├── app/
-│   │   │   └── app_gateway.c
-│   │   ├── service/
-│   │   │   ├── ble_crypto_rx.c
-│   │   │   ├── replay_guard.c
-│   │   │   ├── display_service.c
-│   │   │   └── uart_display.c
-│   │   ├── bsp/
-│   │   │   ├── oled_sh1106.c
-│   │   │   └── indicator.c
-│   │   └── utils/
-│   │
-│   ├── config/                           (Cấu hình SDK)
-│   ├── app.c                             (Entry point sinh bởi Silabs SDK)
-│   ├── main.c
-│   └── gateway_bgm220p.slcp
-│
-└── node_xg26/                            <-- [BOARD NODE SINH HIỆU]
-    ├── inc/
-    │   ├── app/                          <-- [Layer 4: Application]
-    │   │   ├── app_node.h                (Quản lý các FreeRTOS Tasks: PPG, Filter, AI, BLE)
-    │   │   └── app_config.h              (Cấu hình RTOS task stack & priority)
-    │   ├── service/                      <-- [Layer 3: Service / AI & Network]
-    │   │   ├── signal_filter.h           (EMA + IIR SOS + Z-score, cửa sổ 800 mẫu)
-    │   │   ├── tinyml_mvp_runner.h       (Suy luận 1D CNN ResNet+SE trên MVP, latency < 80ms)
-    │   │   └── ble_crypto_tx.h           (Đóng gói 8-byte, AES-CCM & Encrypted Advertising)
-    │   ├── bsp/                          <-- [Layer 2: Board Support Package]
-    │   │   └── max30102.h                (Driver I2C đọc FIFO PPG + GPIO INT)
-    │   └── utils/                        <-- [System Utilities / Common Layer]
-    │       ├── debug_log.h               (Logger wrapper qua UART IO Stream)
-    │       ├── packet_format.h           (Định nghĩa gói tin plaintext 8-byte)
-    │       └── error_codes.h             (Định nghĩa mã lỗi dự đoán)
-    │
-    ├── src/
-    │   ├── app/
-    │   │   └── app_node.c
-    │   ├── service/
-    │   │   ├── signal_filter.c
-    │   │   ├── tinyml_mvp_runner.c
-    │   │   └── ble_crypto_tx.c
-    │   ├── bsp/
-    │   │   └── max30102.c
-    │   └── utils/
-    │
-    ├── config/                           (Cấu hình SDK, MVP Acceleration & FreeRTOSConfig.h)
-    ├── app.c
-    ├── main.c
-    └── node_xg26.slcp
-```
+The SOC-empty example implements a basic GATT database. GATT definitions (services/characteristics) can be extended using the GATT Configurator, which can be found under Advanced Configurators in the Software Components tab of the Project Configurator. To open the Project Configurator, open the .slcp file of the project.
 
----
+![Opening GATT Configurator](image/readme_img1.png)
 
-## Hướng Dẫn Khởi Chạy (Quickstart for Team Members)
+To learn how to use the GATT Configurator, see [UG438: GATT Configurator User’s Guide for Bluetooth SDK v3.x](https://www.silabs.com/documents/public/user-guides/ug438-gatt-configurator-users-guide-sdk-v3x.pdf).
 
-### 1. Clone Repository về máy local
+## Responding to Bluetooth Events
 
-```bash
-git clone https://github.com/NguyenAn20279/uet-phase2-ppg-vital-node.git
-```
+A Bluetooth application is event driven. The Bluetooth stack generates events e.g., when a remote device connects or disconnects or when it writes a characteristic in the local GATT database. The application has to handle these events in the `sl_bt_on_event()` function. The prototype of this function is implemented in *app.c*. To handle more events, the switch-case statement of this function is to be extended. For the list of Bluetooth events, see the online [Bluetooth API Reference](https://docs.silabs.com/bluetooth/latest/).
 
-### 2. Import Project vào Simplicity Studio
+## Implementing Application Logic
 
-1. Mở **Simplicity Studio v6**.
-2. Chọn **File → OpenProject(s)...** → trỏ tới thư mục `firmware/node_xg26` (hoặc `firmware/gateway_bgm220p`).
-3. Kiểm tra thông số SDK và Toolchain (GCC Embedded), nhấn **Finish**.
+Additional application logic has to be implemented in the `app_init()` and `app_process_action()` functions. Find the definitions of these functions in *app.c*. The `app_init()` function is called once when the device is booted, and `app_process_action()` is called repeatedly in a while(1) loop. For example, you can poll peripherals in this function. To save energy and to have this function called at specific intervals only, for example once every second, use the services of the [Sleeptimer](https://docs.silabs.com/gecko-platform/latest/service/api/group-sleeptimer). If you need a more sophisticated application, consider using RTOS (see [AN1260: Integrating v3.x Silicon Labs Bluetooth Applications with Real-Time Operating Systems](https://www.silabs.com/documents/public/application-notes/an1260-integrating-v3x-bluetooth-applications-with-rtos.pdf)).
 
-### 3. Force Generation (bắt buộc trước khi Build)
+## Features Already Added to the SOC-Empty Application
 
-Repo Git **không** chứa `autogen/` và `simplicity_sdk_*/`. Sau khi open project lần đầu (hoặc sau khi clone máy mới), phải generate lại trước khi build — nếu bỏ qua sẽ lỗi build.
+The SOC-Empty application is ***almost*** empty. It implements a basic application to demonstrate how to handle events, how to use the GATT database, and how to add software components.
 
-1. Mở file `.slcp` của project (`node_xg26.slcp` hoặc `gateway_bgm220p.slcp`) để vào trang **Overview / Project Details**.
-2. Ở góc phải phần **Project Details**, bấm menu **⋯** (ba chấm).
-3. Chọn **Force Generation**.
-4. Chờ generate xong (SDK được link, thư mục `autogen/` được tạo) rồi mới sang bước Build.
+* A simple application is implemented in the event handler function that starts advertising on boot (and on connection_closed event). This makes it possible for remote devices to find the device and connect to it.
+* A simple GATT database is defined by adding Generic Access and Device Information services. This makes it possible for remote devices to read out some basic information such as the device name.
+* The OTA DFU software component is added, which extends both the event handlers (see *sl_ota_dfu.c*) and the GATT database (see *ota_dfu.xml*). This makes it possible to make Over-The-Air Device-Firmware-Upgrade without any additional application code.
 
-> Làm lần lượt cho cả `node_xg26` và `gateway_bgm220p` nếu dùng cả hai board.
+## Testing the SOC-Empty Application
 
-### 4. Build & Flash bằng Simplicity for VS Code
+As described above, an empty example does nothing except advertising and letting other devices connect and read its basic GATT database. To test this feature, do the following:
 
-1. Kết nối board tương ứng (XG26 / BGM220P) qua USB.
-2. Mở panel **Si** (Silicon Labs) trên Activity Bar bên trái của VS Code.
-3. Trong danh sách project, hover vào `node_xg26` hoặc `gateway_bgm220p` rồi bấm **Build**.
-4. Sau khi build thành công, bấm **Flash** trên cùng project (chọn file `.hex`/`.bin` nếu được hỏi) để nạp firmware lên board.
-5. Kiểm tra project chạy bình thường trước khi thêm tính năng mới.
+1. Build and flash the SoC-Empty example to your device.
+2. In case of using DFU functionality, make sure a bootloader is installed. See the [Device Firmware Update](#device-firmware-update) section.
+3. Download the **Simplicity Connect** smartphone app, available on [iOS](https://apps.apple.com/us/app/simplicity-connect/id1030932759) and [Android](https://play.google.com/store/apps/details?id=com.siliconlabs.bledemo&hl=en&gl=US).
+4. Open the app and choose the [Scan].
+   ![Simplicity Connect start scanning](image/readme_img2.png)
+5. Now you should find your device advertising as "Empty Example". Tap **Connect**.
+   ![Scan results](image/readme_img3.png)
+6. The connection is opened, and the GATT database is automatically discovered. Find the device name characteristic under Generic Access service and try to read out the device name.
+   ![GATT database of the device](image/readme_img4.png)
 
-> Tip: Khi đang mở file thuộc project, có thể dùng shortcut **Build / Flash / Debug** ngay trên Status Bar phía dưới VS Code.
+## Device Firmware Update
 
----
+This example project does not include Device Firmware Update (DFU) functionality by default, but it can be added easily.
+SoC applications can use one of Silicon Labs' Over-the-Air (OTA) DFU implementations. The table below summarizes the options:
 
-## Quy Tắc Phát Triển & Commit Code (Bắt Buộc)
+|                           | In-place OTA DFU                 | Application OTA DFU                 |
+|---------------------------|----------------------------------|-------------------------------------|
+| **Component to add**      | In-place OTA DFU                 | Application OTA DFU                 |
+| **Compatible bootloader** | Bluetooth Apploader OTA DFU      | Bootloader - SoC Internal Storage (Series 2) <br> Bootloader - SoC Storage (Series 3) |
+| **Reference solution**    | Bluetooth - SoC In-Place OTA DFU | Bluetooth - SoC Application OTA DFU |
+| **Supported devices**     | Supports Series 2 devices only and requires a smaller flash size | Supports Series 2 and Series 3 devices with enough flash to store firmware images in 2 instances |
 
-Để tránh làm hỏng dự án của nhau và xung đột Git, tất cả thành viên phải tuân thủ các quy tắc sau:
+To add DFU to an existing project:
+- Add the appropriate DFU component to your project using Simplicity Studio’s Software Component browser.
+- Add a post-build step to generate the GBL (Gecko Bootloader) file using Simplicity Studio’s Post Build Editor.
+- Rebuild the project.
+- Flash a compatible bootloader to the device.
 
-### 1. Không viết dồn code vào `app.c`
+For more information on bootloaders, see [UG103.6: Bootloader Fundamentals](https://www.silabs.com/documents/public/user-guides/ug103-06-fundamentals-bootloading.pdf) and [UG489: Silicon Labs Gecko Bootloader User's Guide for GSDK 4.0 and Higher](https://www.silabs.com/documents/public/user-guides/ug489-gecko-bootloader-user-guide-gsdk-4.pdf).
 
-- File `app.c` chỉ dùng để khởi tạo luồng chạy chính và quản lý Task của FreeRTOS.
-- Khi viết tính năng mới (driver cảm biến, thuật toán AI, giao diện OLED), bắt buộc tạo file `.c` và `.h` riêng.
-- Đặt tên file rõ ràng theo tính năng (ví dụ: `max30102.c`, `tinyml_mvp_runner.c`, `oled_sh1106.c`).
+## Troubleshooting
 
-### 2. Thêm file mới đúng cách trên Simplicity Studio 6
+### Programming the Radio Board
 
-Nên tạo file `.c`/`.h` bằng **New File/Folder trong Simplicity Studio 6** (không tạo tay trên VS Code) để IDE tự nhận diện và cập nhật đường dẫn vào file `.slcp` cho toolchain.
+Before programming the radio board mounted on the mainboard, make sure the power supply switch is in the AEM position (right side) as shown below.
 
-### 3. Xử lý file cấu hình `.slcp` khi Push/Pull code
+![Radio board power supply switch](image/readme_img0.png)
 
-File `.slcp` chứa thông tin cấu hình project do IDE quản lý. Khi nhiều người cùng thêm file mới, file này rất dễ bị Git conflict.
 
-**Giải pháp:** Nếu gặp conflict ở file `.slcp`, mở file đó bằng VS Code hoặc Text Editor để giữ lại cả 2 đoạn đường dẫn `<source>` và `<include>` mới của các thành viên.
+## Resources
 
-### 4. Quản lý Git Clean
+[Bluetooth Documentation](https://docs.silabs.com/bluetooth/latest/)
 
-- **KHÔNG** commit các thư mục sinh ra tự động khi build như: `build/`, `autogen/`, `simplicity_sdk_*/`, ... (đã được cấu hình sẵn trong `.gitignore`).
-- Chỉ commit các file mã nguồn do người viết: `.c`, `.h`, `.slcp`, `config/`.
+[UG103.14: Bluetooth LE Fundamentals](https://www.silabs.com/documents/public/user-guides/ug103-14-fundamentals-ble.pdf)
 
----
+[QSG169: Bluetooth SDK v3.x Quick Start Guide](https://www.silabs.com/documents/public/quick-start-guides/qsg169-bluetooth-sdk-v3x-quick-start-guide.pdf)
 
-## Phân Công Nhiệm Vụ Tham Khảo
+[UG434: Silicon Labs Bluetooth ® C Application Developer's Guide for SDK v3.x](https://www.silabs.com/documents/public/user-guides/ug434-bluetooth-c-soc-dev-guide-sdk-v3x.pdf)
 
-| Vai trò | Layer | Nhiệm vụ chính |
-|---|---|---|
-| Hardware & Sensor Driver | BSP | MAX30102 (I2C/INT), OLED SH1106, PCB Gateway |
-| AI & Signal Processing | Service | EMA/IIR/Z-score, 1D CNN ResNet+SE trên MVP |
-| Communication & Network | Service | BLE 5.4 AES-CCM, gói tin 8-byte, Replay Guard |
-| System & RTOS Integration | App | FreeRTOS tasks, Stream Buffer/Queue/Semaphore |
+[Bluetooth Training](https://www.silabs.com/support/training/bluetooth)
+
+## Report Bugs & Get Support
+
+You are always encouraged and welcome to report any issues you found to us via [Silicon Labs Community](https://www.silabs.com/community).
